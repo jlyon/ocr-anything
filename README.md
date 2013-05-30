@@ -11,10 +11,12 @@ Installing and Using
 ====================
 First, run the install.sh bash script to install all of the dependencies
 
+`
 git clone github.com/jlyon/ocr-anything
 cd ocr-anything
 chmod +x ocr.sh
 ./ocr.sh path/to/file/name
+`
 
 The script by default will return a JSON string containing
  - text : The text that was read from the file
