@@ -1,5 +1,4 @@
-ocr-anything
-============
+#ocr-anything
 
 Convert (almost) any file to text, including all PDFs, images, doc files and more. 
 Just send the file and this script will do the rest, including analyizing the mimetype,
