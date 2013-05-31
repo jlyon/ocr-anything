@@ -17,9 +17,12 @@ TMP="/tmp/ocr-${RANDOM}"
 PAGES=1
 
 # Look at mimetype to figure out what type of file this is
-MIMETYPE=`file --mime-type "$FILE"`
-MIMETYPE=`echo $MIMETYPE| cut -d':' -f 2`
-MIMETYPE="${MIMETYPE:1}"
+#MIMETYPE=`file --mime-type "$FILE"`
+#MIMETYPE=`echo $MIMETYPE| cut -d':' -f 2`
+#MIMETYPE="${MIMETYPE:1}"
+# We now use xdg-mime to calculate the mimetype becuase of errors with file --mime-type
+# when the file contained spaces. From http://askubuntu.com/questions/103594/how-do-i-determine-the-mime-type-of-a-file
+MIMETYPE=`xdg-mime query filetype "$FILE"`
 
 # PDF File, check if it has embedded fonts (if it is not OCRed)
 if [ $MIMETYPE == 'text/plain' ]; then
@@ -71,7 +74,8 @@ elif [[ $MIMETYPE == image/* ]]; then
 
 # Use libreoffice to do the conversion
 elif  
-  [ $MIMETYPE == 'application/msword' ] ||
+  #[ $MIMETYPE == 'application/msword' ] ||
+  [ $MIMETYPE == 'application/vnd.ms-word' ] ||
   #[ $MIMETYPE == 'application/vnd.ms-excel' ] ||
   [ $MIMETYPE == 'application/vnd.oasis.opendocument.text' ] ||
   [ $MIMETYPE == 'text/html' ]
