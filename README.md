@@ -9,7 +9,7 @@ LibreOffice.
 
 Installing and Using
 ====================
-First, run the install.sh bash script to install all of the dependencies
+First, run the `install.sh` bash script to install all of the dependencies.
    
    ```
    git clone github.com/jlyon/ocr-anything
@@ -18,7 +18,7 @@ First, run the install.sh bash script to install all of the dependencies
    ./ocr.sh path/to/file/name
    ```
 
-The script by default will return a JSON string containing
+The script by default will print a JSON string containing:
  - text : The text that was read from the file
  - mimetype : The mimetype of the file
  - utility : The utility that was used. One of: text, ocr, pdf2text, convert
