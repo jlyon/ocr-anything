@@ -31,19 +31,19 @@ if [ $MIMETYPE == 'text/plain' ]; then
   TOOL="text"
 
 elif [ $MIMETYPE == 'application/pdf' ]; then
-  
+
   FONTS=`pdffonts "$FILE"`
-  
+
   # Text is embedded in the PDF
   if [[ "$FONTS" == *TrueType* ]]; then
-    
+
     pdftotext "$FILE" "${TMP}.txt"
     TEXT=`cat "${TMP}.txt"`
     TOOL="pdftotext"
 
   # Use Tesseract to OCR the file
   else
-    
+
     mkdir "$TMP"
     #convert -density $DPI -depth 8 -alpha Off "$FILE" "${TMP_DIR}/page_%d.tif"
 
@@ -60,7 +60,7 @@ elif [ $MIMETYPE == 'application/pdf' ]; then
 
     TEXT=`cat "${TMP}/result.txt"`
     TOOL="ocr"
-  
+
   fi
 
 # OCR a single image
@@ -73,7 +73,7 @@ elif [[ $MIMETYPE == image/* ]]; then
   TOOL="ocr"
 
 # Use libreoffice to do the conversion
-elif  
+elif
   #[ $MIMETYPE == 'application/msword' ] ||
   [ $MIMETYPE == 'application/vnd.ms-word' ] ||
   #[ $MIMETYPE == 'application/vnd.ms-excel' ] ||
@@ -81,7 +81,7 @@ elif
   [ $MIMETYPE == 'text/html' ]
 then
 
-  # This is wrapped in a while loop because only one instance of soffice can run at 
+  # This is wrapped in a while loop because only one instance of soffice can run at
   # a time, so the file may not get generated the first time around.  This is basically
   # a poor man's way of calling office as a webservice.
   i=0
@@ -106,10 +106,10 @@ then
 fi
 
 # Escape for JSON: http://stackoverflow.com/questions/10053678/escaping-characters-in-bash-for-json
-TEXT=${TEXT//\\/\\\\} # \ 
-TEXT=${TEXT//\//\\\/} # / 
+TEXT=${TEXT//\\/\\\\} # \
+TEXT=${TEXT//\//\\\/} # /
 TEXT=${TEXT//\'/\\\'} # ' (not strictly needed ?)
-TEXT=${TEXT//\"/\\\"} # " 
+TEXT=${TEXT//\"/\\\"} # "
 TEXT=${TEXT//   /\\t} # \t (tab)
 TEXT=${TEXT//
 /\\\n} # \n (newline)
@@ -118,7 +118,7 @@ TEXT=${TEXT//^L/\\\f} # \f (form feed)
 TEXT=${TEXT//^H/\\\b} # \b (backspace)
 
 # return JSON array
-echo "{ text: \"${TEXT}\", mimetype: \"${MIMETYPE}\", utility: \"${TOOL}\", pages: ${PAGES} }"
+echo "{ text: \\\"${TEXT}\\\", mimetype: \\\"${MIMETYPE}\\\", utility: \\\"${TOOL}\\\", pages: ${PAGES} }"
 
 # delete the tmp files (and return nothing)
 #rm -fr $TMP &> /dev/null;
