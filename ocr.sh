@@ -101,16 +101,16 @@ then
   done
 
   TOOL="convert"
-  TEXT=`cat "${TMP}/${BASENAME}.txt"` &> /dev/null
+  TEXT=`tr -cd '\000-\177' < "${TMP}/${BASENAME}.txt"` &> /dev/null
 
 fi
 
 # Escape for JSON: http://stackoverflow.com/questions/10053678/escaping-characters-in-bash-for-json
 TEXT=${TEXT//\\/\\\\} # \
 TEXT=${TEXT//\//\\\/} # /
-TEXT=${TEXT//\'/\\\'} # ' (not strictly needed ?)
+#TEXT=${TEXT//\'/\\\'} # ' (not strictly needed ?)
 TEXT=${TEXT//\"/\\\"} # "
-TEXT=${TEXT//   /\\t} # \t (tab)
+TEXT=${TEXT//	/\\t} # \t (tab)
 TEXT=${TEXT//
 /\\\n} # \n (newline)
 TEXT=${TEXT//^M/\\\r} # \r (carriage return)
@@ -118,7 +118,7 @@ TEXT=${TEXT//^L/\\\f} # \f (form feed)
 TEXT=${TEXT//^H/\\\b} # \b (backspace)
 
 # return JSON array
-echo "{ text: \\\"${TEXT}\\\", mimetype: \\\"${MIMETYPE}\\\", utility: \\\"${TOOL}\\\", pages: ${PAGES} }"
+echo "{ \"text\": \"${TEXT}\", \"mimetype\": \"${MIMETYPE}\", \"utility\": \"${TOOL}\", \"pages\": ${PAGES} }"
 
 # delete the tmp files (and return nothing)
 #rm -fr $TMP &> /dev/null;
