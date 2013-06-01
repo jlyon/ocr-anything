@@ -76,7 +76,7 @@ elif [[ $MIMETYPE == image/* ]]; then
 elif
   #[ $MIMETYPE == 'application/msword' ] ||
   [ $MIMETYPE == 'application/vnd.ms-word' ] ||
-  #[ $MIMETYPE == 'application/vnd.ms-excel' ] ||
+  [ $MIMETYPE == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ] ||
   [ $MIMETYPE == 'application/vnd.oasis.opendocument.text' ] ||
   [ $MIMETYPE == 'text/html' ]
 then
@@ -101,8 +101,7 @@ then
   done
 
   TOOL="convert"
-  TEXT=`tr -cd '\000-\177' < "${TMP}/${BASENAME}.txt"` &> /dev/null
-
+  TEXT=`tr -cd "[:print:]" < "${TMP}/${BASENAME}.txt"` &> /dev/null
 fi
 
 # Escape for JSON: http://stackoverflow.com/questions/10053678/escaping-characters-in-bash-for-json
