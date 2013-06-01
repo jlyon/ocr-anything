@@ -38,7 +38,7 @@ elif [ $MIMETYPE == 'application/pdf' ]; then
   if [[ "$FONTS" == *TrueType* ]]; then
 
     pdftotext "$FILE" "${TMP}.txt"
-    TEXT=`cat "${TMP}.txt"`
+    TEXT=`tr -cd "[:print:]" "${TMP}.txt"`
     TOOL="pdftotext"
 
   # Use Tesseract to OCR the file
@@ -58,7 +58,7 @@ elif [ $MIMETYPE == 'application/pdf' ]; then
       PAGES=$(( $PAGES + 1 ))
     done
 
-    TEXT=`cat "${TMP}/result.txt"`
+    TEXT=`tr -cd "[:print:]" "${TMP}/result.txt"`
     TOOL="ocr"
 
   fi
