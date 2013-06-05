@@ -1,20 +1,62 @@
-#!/bin/bash
+#!/bin/sh
 
-# Takes in any file, and returns a JSON array:
-# {
-#   text: <THE_TEXT_OUTPUT_OF_THE_DOC>
-#   mimetype: application/pdf|application/msword|...
-#   utility: convert|pdftotext|ocr
-#   pages: <NUMBER_OF_PAGES>
-# }
+# Holds the help information displayed when the -h flag is added
+usage="
+ocr-anything
+============
 
-# Settings
+Convert (almost) any file to text, including all PDFs, images, doc files and more. 
+Just send the file and this script will do the rest, including analyizing the mimetype,
+and converting it to text with an OCR program (tesserect), or converting it with 
+LibreOffice.
+
+./ocr.sh -f\"my file.pdf\" -p5 -d72
+
+
+OPTIONS
+    -h
+        Show a summary of options
+
+    -f
+        Required. The file to lexile.
+        
+    -p
+        The maximum amount pages to OCR.  This only has an effect if the document 
+        contains an image (scan) that needs to be OCRed. Defaults to 10000.
+
+    -d
+        The DPI to use when OCRing the file.  This only has an effect if the document 
+        contains an image (scan) that needs to be OCRed. Defaults to 300.
+
+
+RETURN
+    This script will print a JSON array to the screen containing:
+    {
+        text: <THE_TEXT_OUTPUT_OF_THE_DOC>,
+        mimetype: application/pdf|application/msword|...,
+        utility: convert|pdftotext|ocr,
+        pages: <NUMBER_OF_PAGES>
+    }
+"
+
+# Settings and default options
 FILE="$1"
 DPI=300
-
-# Set up vars
+MAXPAGES=10000
 TMP="/tmp/ocr-${RANDOM}"
 PAGES=1
+
+# Get the arguments
+while getopts "f:p:d:h" option; do
+  case "${option}" in
+    f) FILE=${OPTARG};;
+    p) MAXPAGES=${OPTARG};;
+    d) DPI=${OPTARG};;
+    h) echo "$usage"; exit 2;;
+  esac
+done
+
+echo $MAXPAGES
 
 # Look at mimetype to figure out what type of file this is
 #MIMETYPE=`file --mime-type "$FILE"`
@@ -51,14 +93,17 @@ elif [ $MIMETYPE == 'application/pdf' ]; then
     dir="${TMP}/*.pdf"  # for some reason, we need to put this in its own variable
     PAGES=0
     for f in $dir ; do
-      f=`basename $f .pdf`
-      convert -density 300 -depth 8 -alpha Off "${TMP}/${f}.pdf" "${TMP}/${f}.tif" &> /dev/null
-      tesseract "${TMP}/${f}.tif" "${TMP}/$f" &> /dev/null
-      cat "${TMP}/${f}.txt" >> "${TMP}/result.txt"
       PAGES=$(( $PAGES + 1 ))
+      if [ $PAGES -le $MAXPAGES ]; then
+        f=`basename $f .pdf`
+        convert -density $DPI -depth 8 -alpha Off "${TMP}/${f}.pdf" "${TMP}/${f}.tif" &> /dev/null
+        tesseract "${TMP}/${f}.tif" "${TMP}/$f" &> /dev/null
+        cat "${TMP}/${f}.txt" >> "${TMP}/result.txt"
+      fi
     done
 
-    TEXT=`tr -cd "[:print:]" "${TMP}/result.txt"`
+    #TEXT=`tr -d "[:print:]" "${TMP}/result.txt"`
+    TEXT=`cat "${TMP}/result.txt"`
     TOOL="ocr"
 
   fi
@@ -69,7 +114,7 @@ elif [[ $MIMETYPE == image/* ]]; then
   mkdir "$TMP"
   echo $FILE
   tesseract "$FILE" "${TMP}/result.txt" &> /dev/null
-  TEXT=`cat "${TMP}/result.txt"`
+  TEXT=`tr -cd "[:print:]" "${TMP}/result.txt"`
   TOOL="ocr"
 
 # Use libreoffice to do the conversion
