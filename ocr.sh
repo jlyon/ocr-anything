@@ -56,7 +56,6 @@ while getopts "f:p:d:h" option; do
   esac
 done
 
-echo $MAXPAGES
 
 # Look at mimetype to figure out what type of file this is
 #MIMETYPE=`file --mime-type "$FILE"`
