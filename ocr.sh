@@ -56,7 +56,6 @@ while getopts "f:p:d:h" option; do
   esac
 done
 
-
 # Look at mimetype to figure out what type of file this is
 #MIMETYPE=`file --mime-type "$FILE"`
 #MIMETYPE=`echo $MIMETYPE| cut -d':' -f 2`
@@ -140,7 +139,7 @@ then
       i=100
     else
       i=$(( $i + 1 ))
-      soffice --headless --convert-to txt:Text --outdir "$TMP" "$FILE" &> /dev/null
+      soffice "-env:UserInstallation=file://${TMP}" --headless --convert-to txt:Text --outdir "$TMP" "$FILE" &> /dev/null
     fi
   done
 
@@ -165,4 +164,7 @@ echo "{ \"text\": \"${TEXT}\", \"mimetype\": \"${MIMETYPE}\", \"utility\": \"${T
 
 # delete the tmp files (and return nothing)
 #rm -fr $TMP &> /dev/null;
+
+
+exit 2
 
