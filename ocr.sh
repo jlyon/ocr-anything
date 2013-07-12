@@ -78,7 +78,8 @@ elif [ $MIMETYPE == 'application/pdf' ]; then
   if [[ "$FONTS" == *TrueType* ]]; then
 
     pdftotext "$FILE" "${TMP}.txt"
-    TEXT=`tr -cd "[:print:]" "${TMP}.txt"`
+    TEXT=`iconv -c -f utf-8 -t ascii "${TMP}.txt"`
+    #TEXT=`tr -cd "[:print:]" "${TMP}.txt"`
     TOOL="pdftotext"
 
   # Use Tesseract to OCR the file
@@ -101,7 +102,7 @@ elif [ $MIMETYPE == 'application/pdf' ]; then
     done
 
     #TEXT=`tr -d "[:print:]" "${TMP}/result.txt"`
-    TEXT=`cat "${TMP}/result.txt"`
+    TEXT=`iconv -c -f utf-8 -t ascii "${TMP}/result.txt"`
     TOOL="ocr"
 
   fi
@@ -112,7 +113,7 @@ elif [[ $MIMETYPE == image/* ]]; then
   mkdir "$TMP"
   echo $FILE
   tesseract "$FILE" "${TMP}/result.txt" &> /dev/null
-  TEXT=`tr -cd "[:print:]" "${TMP}/result.txt"`
+  TEXT=`iconv -c -f utf-8 -t ascii "${TMP}/result.txt"`
   TOOL="ocr"
 
 # Use libreoffice to do the conversion
@@ -144,7 +145,7 @@ then
   done
 
   TOOL="convert"
-  TEXT=`tr -cd "[:print:]" < "${TMP}/${BASENAME}.txt"` &> /dev/null
+  TEXT=`iconv -c -f utf-8 -t ascii "${TMP}/${BASENAME}.txt"` &> /dev/null
 fi
 
 # Escape for JSON: http://stackoverflow.com/questions/10053678/escaping-characters-in-bash-for-json
@@ -158,6 +159,7 @@ TEXT=${TEXT//
 TEXT=${TEXT//^M/\\\r} # \r (carriage return)
 TEXT=${TEXT//^L/\\\f} # \f (form feed)
 TEXT=${TEXT//^H/\\\b} # \b (backspace)
+TEXT=`sed 's/[\d1-\d31]//g' <<< $TEXT` # Strip out other non-ASCII(?) chars that were causing problems
 
 # return JSON array
 echo "{ \"text\": \"${TEXT}\", \"mimetype\": \"${MIMETYPE}\", \"utility\": \"${TOOL}\", \"pages\": ${PAGES} }"
